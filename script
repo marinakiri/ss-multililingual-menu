@@ -1,0 +1,69 @@
+<script>
+
+ YUI().use('node', function (Y) {
+ 
+   // output a menu
+   var output = true;
+ 
+   // here is where you set your default language
+   var language = "en";
+ 
+   // define the allowed languages
+   var allowedLanguages = new Array();
+   allowedLanguages['fr'] = {
+         label:'Français',
+         short:'FR',
+         url:'/fr/home',
+         lang:'fr-FR'
+   };
+   allowedLanguages['en'] = {
+         label:'English',
+         short:'EN',
+         url:'/en/home',
+         lang:'en-EN'
+   };
+ 
+   var urlparts = document.location.pathname;
+   if(urlparts.startsWith("/")){
+     urlparts = urlparts.substr(1);
+   }
+   if(urlparts.endsWith("/")){
+     urlparts = urlparts.substr(0,urlparts.length-1);
+   }
+   if(urlparts.length) {
+     urlparts = urlparts.split("/");
+     if(urlparts[0] in allowedLanguages){
+       language = urlparts[0];
+     }
+   }
+   var selector = [
+     '#mainNavigation > div > label:not([data-href*=\"/' + language + '/\"])', 
+     '#mainNavigation > div > a:not([href*=\"/' + language + '/\"])', 
+     '#mobileNavigation > div > label:not([data-href*=\"/' + language + '/\"])', 
+     '#mobileNavigation > div > a:not([href*=\"/' + language + '/\"])',
+     '#secondaryNavigation > div > label:not([data-href*=\"/' + language + '/\"])', 
+     '#secondaryNavigation > div > a:not([href*=\"/' + language + '/\"])'
+   ]; 
+   
+   Y.all(selector.join()).get('parentNode').remove();
+ 
+   if(output){    
+     Y.all('#mainNavWrapper,#mobileNavWrapper').append(buildLanguageMenuHTML(language, allowedLanguages, 'right top'));
+   }
+   
+   Y.one('html').setAttribute('lang', allowedLanguages[language].lang);
+ });
+ 
+ function buildLanguageMenuHTML(strCurrentLang, arrAllowedLangs, strClass){
+     var htmlTemplate = '<nav id="langNavigation" class="' + strClass + '"><div class="folder"><input type="checkbox" name="folder-toggle-lang-navigation" id="folder-toggle-lang-navigation" class="folder-toggle-box hidden"><label for="folder-toggle-lang-navigation" class="folder-toggle-label" onclick="" data-href="' + arrAllowedLangs[strCurrentLang].url + '">' + arrAllowedLangs[strCurrentLang].short + '</label><div class="subnav">###languages###</div></div></nav>';
+     var htmlTemplateInner = '<div class="collection"><a href="###url###">###label###</a></div>';
+     var htmlInner='';
+     var htmlOutput='';
+     for(language in arrAllowedLangs){
+         if(arrAllowedLangs.hasOwnProperty(language)){
+             htmlInner += htmlTemplateInner.replace('###label###',  arrAllowedLangs[language].label).replace('###url###',arrAllowedLangs[language].url);
+         }
+     }    htmlOutput = htmlTemplate.replace('###languages###',htmlInner);
+     return htmlOutput;
+ }
+ </script>
